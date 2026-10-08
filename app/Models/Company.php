@@ -35,6 +35,17 @@ class Company extends Model
         return $this->hasMany(Job::class)->where('status', 'active');
     }
 
+    // Payments are made by the company's owner (payments.user_id = companies.user_id).
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'user_id', 'user_id');
+    }
+
+    public function latestPayment()
+    {
+        return $this->hasOne(Payment::class, 'user_id', 'user_id')->latestOfMany();
+    }
+
     public function reviews()
     {
         return $this->hasMany(CompanyReview::class);

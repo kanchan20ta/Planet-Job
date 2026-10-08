@@ -16,6 +16,7 @@ use App\Http\Controllers\Employer\EmployerController;
 use App\Http\Controllers\Employer\DashboardController;
 use App\Http\Controllers\Employer\CompanyController;
 use App\Http\Controllers\Employer\SubscriptionController;
+use App\Http\Controllers\Employer\JobApplicationController;
 use App\Http\Controllers\Employer\JobController as EmployerJobController;
 Auth::routes(['verify' => true]);
 
@@ -126,6 +127,10 @@ Route::middleware('auth')->group(function () {
 
         Route::get('companies', [Admin\CompanyController::class, 'index'])->name('companies.index');
         Route::post('companies/{company}/verify', [Admin\CompanyController::class, 'verify'])->name('companies.verify');
+        Route::post('companies/{company}/approve-payment', [Admin\CompanyController::class, 'approvePayment'])->name('companies.approve-payment');
+        // Friendly fallback if someone reloads/opens these POST-only URLs directly.
+        Route::get('companies/{company}/verify', fn () => redirect()->route('admin.companies.index'));
+        Route::get('companies/{company}/approve-payment', fn () => redirect()->route('admin.companies.index'));
 
         Route::get('payments', [Admin\PaymentController::class, 'index'])->name('payments.index');
 
@@ -164,11 +169,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/company/create', [App\Http\Controllers\CompanyController::class, 'create'])->name('company.create');
         Route::resource('jobs', EmployerJobController::class)->except(['show']);
         Route::post('jobs/{job}/renew', [EmployerJobController::class, 'renew'])->name('jobs.renew');
-        Route::get('jobs/{job}/applications', [Employer\JobApplicationController::class, 'index'])->name('jobs.applications');
-        Route::put('applications/{application}/status', [Employer\JobApplicationController::class, 'updateStatus'])->name('applications.update-status');
+        Route::get('jobs/{job}/applications', [JobApplicationController::class, 'index'])->name('jobs.applications');
+        Route::put('applications/{application}/status', [JobApplicationController::class, 'updateStatus'])->name('applications.update-status');
 
         Route::get('subscription', [SubscriptionController::class, 'index'])->name('subscription.index');
-        Route::post('subscription/{plan}', [Employer\SubscriptionController::class, 'store'])->name('subscription.store');
+        Route::post('subscription/{plan}', [SubscriptionController::class, 'store'])->name('subscription.store');
 
         Route::get('company', [CompanyController::class, 'edit'])->name('company.edit');
         Route::put('company', [CompanyController::class, 'update'])->name('company.update');
